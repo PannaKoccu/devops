@@ -1,7 +1,8 @@
 ---
-- name: Setup Docker, Docker Compose and Monitoring on Ubuntu EC2
+- name: Setup Docker, Docker Compose and Monitoring 
   hosts: all
   become: yes
+  
   tasks:
     - name: Install aptitude
       apt:

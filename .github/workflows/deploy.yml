@@ -1,0 +1,69 @@
+name: Deploy to AWS EC2 with Monitoring
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  setup-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        run: |
+          install -m 600 -D /dev/null /tmp/ec2-key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2-key.pem
+
+      - name: Install Ansible
+        run: sudo apt update && sudo apt install -y ansible
+
+      - name: Run Ansible playbook
+        run: |
+          ansible-playbook \
+            --user ubuntu \
+            --private-key /tmp/ec2-key.pem \
+            --inventory "${{ secrets.EC2_HOST }}," \
+            --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
+            ansible/playbook.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+
+  deploy-app:
+    needs: setup-server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/js-site:latest
+
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd $HOME
+            # Удаляем старую папку (чтобы избежать конфликтов)
+            rm -rf my-devops-project || true
+            # Клонируем заново (альтернатива: можно копировать через SCP, но проще так)
+            git clone https://github.com/${{ github.repository_owner }}/my-devops-project.git
+            cd my-devops-project
+            # Поднимаем всё
+            docker-compose down || true
+            docker-compose up -d --build
