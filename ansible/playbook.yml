@@ -2,7 +2,7 @@
 - name: Setup Docker, Docker Compose and Monitoring 
   hosts: all
   become: yes
-  
+
   tasks:
     - name: Install aptitude
       apt:
@@ -28,7 +28,7 @@
         enabled: yes
 
     - name: Install Docker Compose
-      run: |
+      ansible.builtin.shell: |
         sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
