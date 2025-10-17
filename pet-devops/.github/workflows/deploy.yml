@@ -49,7 +49,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/js-site:latest
+          tags: ghcr.io/$pannakoccu/js-site:latest
 
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
@@ -59,11 +59,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd $HOME
-            # Удаляем старую папку (чтобы избежать конфликтов)
-            rm -rf my-devops-project || true
-            # Клонируем заново (альтернатива: можно копировать через SCP, но проще так)
-            git clone https://github.com/${{ github.repository_owner }}/my-devops-project.git
-            cd my-devops-project
-            # Поднимаем всё
+            rm -rf devops-pet-project || true
+            git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/devops-pet-project.git
+            cd devops-pet-project
             docker-compose down || true
             docker-compose up -d --build
