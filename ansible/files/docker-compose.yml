@@ -1,28 +1,35 @@
 version: '3.8'
 services:
+  # Твой сайт в Nginx
   web:
     image: nginx:alpine
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
 
+  # Prometheus — собирает метрики
   prometheus:
     image: prom/prometheus:latest
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
+  # Grafana — визуализация
   grafana:
     image: grafana/grafana:latest
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
 
+  # Blackbox Exporter — проверяет доступность HTTP
   blackbox:
     image: prom/blackbox-exporter:latest
+    restart: unless-stopped
     ports:
       - "9115:9115"

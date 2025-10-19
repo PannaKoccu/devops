@@ -2,14 +2,16 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+  # Собственные метрики Prometheus
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
 
+  # Проверка доступности твоего сайта
   - job_name: 'website'
     metrics_path: /probe
     params:
       module: [http_2xx]
-      target: [http://web:80]
+      target: [http://web:80]  # ← имя сервиса из docker-compose
     static_configs:
-      - targets: ['blackbox:9115']
+      - targets: ['blackbox:9115']  # ← имя сервиса Blackbox

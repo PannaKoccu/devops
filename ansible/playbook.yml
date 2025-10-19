@@ -68,6 +68,11 @@
         src: ../../site/
         dest: /opt/monitoring/site/
 
+    - name: Copy prometheus.yml
+      copy:
+        src: files/prometheus.yml
+        dest: /opt/monitoring/prometheus.yml
+
     - name: Copy docker-compose.yml
       template:
         src: files/docker-compose.yml
