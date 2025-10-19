@@ -1,7 +1,0 @@
-# Terraform
-*.tfstate
-*.tfstate.backup
-*.pem
-
-# Local
-terraform.tfvars
