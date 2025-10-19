@@ -79,9 +79,7 @@
         dest: /opt/monitoring/docker-compose.yml
 
     - name: Start monitoring stack
-      shell: |
-       docker-compose bild
-       docker-compose up -d
+      shell: docker-compose up -d
       args:
         chdir: /opt/monitoring
 
