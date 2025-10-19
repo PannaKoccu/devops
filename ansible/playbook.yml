@@ -4,7 +4,7 @@
   become: yes
 
   tasks:
-    - name: Install aptitude
+    - name: Install aptitud
       apt:
         name: aptitude
         state: latest

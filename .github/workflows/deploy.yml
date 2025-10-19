@@ -1,65 +1,54 @@
-name: Deploy to AWS EC2 with Monitoring
+name: Deploy with Auto-Generated SSH Key
 
 on:
   push:
+    branches: [ main ]
 
 jobs:
-  setup-server:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Prepare SSH key
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Передаём публичный ключ в Terraform как переменную
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+          TF_VAR_public_key:     ${{ secrets.SSH_PUBLIC_KEY }}
+
+      - name: Get EC2 Public IP
         run: |
-          install -m 600 -D /dev/null /tmp/ec2-key.pem
-          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2-key.pem
+          IP=$(terraform output -raw public_ip)
+          echo "EC2_IP=$IP" >> $GITHUB_ENV
+        working-directory: ./terraform
+
+      # Готовим приватный ключ для Ansible
+      - name: Set up SSH private key
+        run: |
+          mkdir -p /home/runner/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /home/runner/.ssh/key.pem
+          chmod 600 /home/runner/.ssh/key.pem
+
+      - name: Generate Ansible Inventory
+        run: |
+          echo "${{ env.EC2_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=/home/runner/.ssh/key.pem" > inventory.ini
 
       - name: Install Ansible
-        run: sudo apt update && sudo apt install -y ansible
-
-      - name: Run Ansible playbook
         run: |
-          ansible-playbook \
-            --user ubuntu \
-            --private-key /tmp/ec2-key.pem \
-            --inventory "${{ secrets.EC2_HOST }}," \
-            --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
-            ansible/playbook.yml
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: False
+          sudo apt update
+          sudo apt install -y ansible
 
-  deploy-app:
-    needs: setup-server
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/$pannakoccu/js-site:latest
-
-      - name: Deploy with Docker Compose
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd $HOME
-            rm -rf devops-pet-project || true
-            git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/devops-pet-project.git
-            cd devops-pet-project
-            docker-compose down || true
-            docker-compose up -d --build
+      # Запускаем Ansible
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i inventory.ini ansible/playbook.yml
