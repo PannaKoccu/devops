@@ -45,6 +45,46 @@
         state: started
         enabled: yes
 
+         # 2. Копирование сайта и Dockerfile
+    - name: Create web directory
+      file:
+        path: /opt/web
+        state: directory
+
+    - name: Copy website files
+      copy:
+        src: ../../site/
+        dest: /opt/web/site/
+
+    - name: Copy Dockerfile
+      copy:
+        src: ../../Dockerfile
+        dest: /opt/web/Dockerfile
+
+    # 3. Сборка образа
+    - name: Build website Docker image
+      shell: docker build -t my-website .
+      args:
+        chdir: /opt/web
+
+        # 4. Запуск контейнера
+    - name: Stop existing website container (if any)
+      shell: docker stop website || true
+      ignore_errors: yes
+
+    - name: Remove existing website container (if any)
+      shell: docker rm website || true
+      ignore_errors: yes
+
+    - name: Run website container
+      shell: >
+        docker run -d
+        --name website
+        --restart unless-stopped
+        -p 80:80
+        my-website
+
+
  
     - name: Install Docker Compose
       get_url:
@@ -96,7 +136,7 @@
       args:
         chdir: /opt/monitoring
       ignore_errors: yes  # чтобы не падал, если контейнеров нет
-      
+
     - name: Start monitoring stack
       shell: docker-compose up -d
       args:
