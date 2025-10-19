@@ -18,7 +18,7 @@ data "aws_ami" "pet_proekt" {
 
 
  resource "aws_instance" "web" {
-    ami = data.aws.pet_proekt.id
+    ami = data.aws_ami.pet_proekt
     instance_type = "t3.micro"
     tags = {
       Name = "devops_server"
