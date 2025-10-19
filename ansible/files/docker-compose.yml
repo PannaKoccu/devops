@@ -1,7 +1,8 @@
-version: '3'
+version: '3.8'
 services:
   web:
     image: nginx:alpine
+    restart: always
     ports:
       - "80:80"
     volumes:

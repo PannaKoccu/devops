@@ -10,6 +10,6 @@ scrape_configs:
     metrics_path: /probe
     params:
       module: [http_2xx]
-      target: [http://localhost]
+      target: [http://web:80]
     static_configs:
-      - targets: ['localhost:9115']
+      - targets: ['blackbox:9115']
