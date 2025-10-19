@@ -29,11 +29,17 @@
         name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
         update_cache: yes
 
-    - name: Add Docker GPG key
-      apt_key:
+    - name: Download Docker GPG key
+      get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-        
+        dest: /usr/share/keyrings/docker-archive-keyring.gpg
+         mode: '0644'
+
+    - name: Add Docker repository
+      apt_repository:
+       repo: deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable
+       state: present
+       
     - name: Update package cache
       apt:
         update_cache: yes
