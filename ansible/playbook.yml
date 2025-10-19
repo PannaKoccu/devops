@@ -53,8 +53,8 @@
 
     - name: Copy website files
       copy:
-        src: ../../site/
-        dest: /opt/web/site/
+        src: ../../index.html
+        dest: /opt/web/index.html
 
     - name: Copy Dockerfile
       copy:
