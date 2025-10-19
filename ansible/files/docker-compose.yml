@@ -16,7 +16,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
   # Grafana — визуализация
   grafana:

@@ -73,6 +73,13 @@
         src: files/prometheus.yml
         dest: /opt/monitoring/prometheus.yml
 
+    - name: Set correct permissions for prometheus.yml
+      file:
+        path: /opt/monitoring/prometheus.yml
+        mode: '0644'
+        owner: root
+        group: root
+
     - name: Copy docker-compose.yml
       template:
         src: files/docker-compose.yml
