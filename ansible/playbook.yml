@@ -58,7 +58,7 @@
 
     - name: Copy Dockerfile
       copy:
-        src: ../../Dockerfile
+        src: files/Dockerfile
         dest: /opt/web/Dockerfile
 
     # 3. Сборка образа
