@@ -29,8 +29,8 @@ resource "aws_key_pair" "deployer" {
         dynamic "ingress" {
             for_each = ["80" , "22" , "3000" , "9090"]
             content {
-            from_port =80
-            to_port   =80
+            from_port = tonumber(ingress.value)
+            to_port   = tonumber(ingress.value)
             protocol  ="tcp"
             cidr_blocks = ["0.0.0.0/0"]
             }
