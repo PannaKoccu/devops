@@ -12,11 +12,6 @@
         state: latest
         update_cache: yes
 
-    - name: Install Docker
-      apt:
-        name: docker.io
-        state: present
-
     - name: Add ubuntu user to docker group
       user:
         name: ubuntu
@@ -38,6 +33,9 @@
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
+        
+    - name: Update package cache
+      apt:
         update_cache: yes
 
     - name: Install Docker
