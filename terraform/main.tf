@@ -28,7 +28,7 @@ data "aws_ami" "pet_proekt" {
     key_name               = aws_key_pair.deployer.key_name
     lifecycle {
       prevent_destroy = true
-      ignore_changes = [ "ami" ]
+      ignore_changes = [ ami ]
     }
 }
   
@@ -40,7 +40,7 @@ resource "aws_key_pair" "deployer" {
 
 
  resource "aws_security_group" "my_progect" {
-        name = my_progect_sec_group
+        name = "my_progect_sec_group"
         dynamic "ingress" {
             for_each = ["80" , "22" , "3000" , "9090"]
             content {
