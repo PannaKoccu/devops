@@ -2,23 +2,8 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_ami" "pet_proekt" {
-    owners = ["099720109477"]
-    most_recent = true
-    filter {
-        name = "name"
-        values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd-server-*"]
-    }
-     filter {
-        name = "virtualization-type"
-        values = ["hvm"]
-     }
-  
-}
-
-
  resource "aws_instance" "web" {
-    ami = data.aws_ami.pet_proekt
+    ami = "ami-0bbdd8c17ed981ef9"
     instance_type = "t3.micro"
     tags = {
       Name = "devops_server"
