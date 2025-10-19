@@ -69,7 +69,7 @@
 
     - name: Copy docker-compose.yml
       template:
-        src: files/docker-compose.yml.j2
+        src: files/docker-compose.yml
         dest: /opt/monitoring/docker-compose.yml
 
     - name: Start monitoring stack
