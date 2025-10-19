@@ -27,7 +27,7 @@ resource "aws_key_pair" "deployer" {
  resource "aws_security_group" "my_progect" {
         name = "my_progect_sec_group"
         dynamic "ingress" {
-            for_each = ["80" , "22" , "3000" , "9090" , "9015"]
+            for_each = ["80" , "22" , "3000" , "9090" , "9115"]
             content {
             from_port = tonumber(ingress.value)
             to_port   = tonumber(ingress.value)

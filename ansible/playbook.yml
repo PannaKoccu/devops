@@ -6,7 +6,7 @@
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
   tasks:
-    - name: Install aptitud
+    - name: Install aptitude
       apt:
         name: aptitude
         state: latest
@@ -73,7 +73,7 @@
         dest: /opt/monitoring/docker-compose.yml
 
     - name: Start monitoring stack
-      shell: docker-compose up -d
+      shell: docker compose up -d
       args:
         chdir: /opt/monitoring
 
@@ -87,4 +87,4 @@
         - 80   # Сайт
         - 3000 
         - 9090
-        - 9015
+        - 9115
