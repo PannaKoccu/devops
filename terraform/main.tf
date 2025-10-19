@@ -12,7 +12,7 @@ provider "aws" {
     vpc_security_group_ids = [aws_security_group.my_progect.id]
     key_name               = aws_key_pair.deployer.key_name
     lifecycle {
-      prevent_destroy = true
+      prevent_destroy = false
       ignore_changes = [ ami ]
     }
 }
