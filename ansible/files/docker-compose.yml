@@ -1,14 +1,6 @@
 version: '3.8'
 services:
-  # Твой сайт в Nginx
-  web:
-    image: nginx:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./site:/usr/share/nginx/html:ro
-
+ 
   # Prometheus — собирает метрики
   prometheus:
     image: prom/prometheus:latest

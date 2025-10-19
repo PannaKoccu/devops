@@ -76,6 +76,12 @@
       shell: docker rm website || true
       ignore_errors: yes
 
+    - name: Stop and remove existing containers
+      shell: docker-compose down
+      args:
+        chdir: /opt/monitoring
+      ignore_errors: yes  # чтобы не падал, если контейнеров нет
+
     - name: Run website container
       shell: >
         docker run -d
@@ -102,11 +108,6 @@
       file:
         path: /opt/monitoring
         state: directory
-
-    - name: Copy website files
-      copy:
-        src: ../../site/
-        dest: /opt/monitoring/site/
 
     - name: Create prometheus config directory
       file:
