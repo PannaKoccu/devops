@@ -78,7 +78,7 @@
         src: files/prometheus.yml
         dest: /opt/monitoring/prometheus/prometheus.yml
         mode: '0644'
-        
+
     - name: Set correct permissions for prometheus.yml
       file:
         path: /opt/monitoring/prometheus.yml
@@ -91,6 +91,12 @@
         src: files/docker-compose.yml
         dest: /opt/monitoring/docker-compose.yml
 
+    - name: Stop and remove existing containers
+      shell: docker-compose down
+      args:
+        chdir: /opt/monitoring
+      ignore_errors: yes  # чтобы не падал, если контейнеров нет
+      
     - name: Start monitoring stack
       shell: docker-compose up -d
       args:
