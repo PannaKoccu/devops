@@ -3,6 +3,8 @@ name: Destroy Infrastructure
 on:
   workflow_run:
     workflows: [Deploy with Auto-Generated SSH Key]
+    types:
+      - completed
     
 
 jobs:
