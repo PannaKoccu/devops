@@ -35,18 +35,13 @@
         dest: /usr/share/keyrings/docker-archive-keyring.gpg
         mode: '0644'
 
-    - name: Add Docker repository
-      apt_repository:
-       repo: deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable
-       state: present
-
     - name: Update package cache
       apt:
         update_cache: yes
 
     - name: Install Docker
       apt:
-        name: docker-ce
+        name: docker.io
         state: present
         update_cache: yes
  
