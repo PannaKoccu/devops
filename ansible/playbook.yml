@@ -38,6 +38,6 @@
         port: "{{ item }}"
         proto: tcp
       loop:
-        - 22   # SSH
+        - 22   # SSh
         - 80   # Сайт
         - 3000 # Grafana
