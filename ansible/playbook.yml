@@ -85,7 +85,7 @@
         port: "{{ item }}"
         proto: tcp
       loop:
-        - 22   # SSh
+        - 22   
         - 80   
         - 3000 
         - 9090
