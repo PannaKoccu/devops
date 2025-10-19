@@ -29,10 +29,52 @@
         state: started
         enabled: yes
 
+    - name: Install required system packages
+      apt:
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
+        update_cache: yes
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        update_cache: yes
+ 
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+
     - name: Install ufw (firewall)
       apt:
         name: ufw
         state: present
+
+    - name: Create app directory
+      file:
+        path: /opt/monitoring
+        state: directory
+
+    - name: Copy website files
+      copy:
+        src: ../../site/
+        dest: /opt/monitoring/site/
+
+    - name: Copy docker-compose.yml
+      template:
+        src: files/docker-compose.yml.j2
+        dest: /opt/monitoring/docker-compose.yml
+
+    - name: Start monitoring stack
+      shell: docker-compose up -d
+      args:
+        chdir: /opt/monitoring
 
     - name: Allow SSH, HTTP, Grafana
       ufw:
@@ -42,4 +84,5 @@
       loop:
         - 22   # SSh
         - 80   # Сайт
-        - 3000 # Grafana
+        - 3000 
+        - 9090 # Grafana
