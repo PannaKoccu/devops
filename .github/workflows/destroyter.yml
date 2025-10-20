@@ -1,14 +1,8 @@
 name: Destroy terr
 
 on:
-  workflow_dispatch:
-    inputs:
-      title:
-        description: "Progect"
-        type: string
-        default: "Testing tex title"
-        required: false
-
+  push:
+    branches: [main]
     
 
 jobs:
