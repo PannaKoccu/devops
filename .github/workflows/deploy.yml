@@ -1,8 +1,13 @@
 name: Deploy with Auto-Generated SSH Key
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Progect"
+        type: string
+        default: "Testing tex title"
+        required: false
 
 jobs:
   deploy:
