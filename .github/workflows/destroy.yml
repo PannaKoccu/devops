@@ -2,6 +2,13 @@ name: Destroy Infrastructure
 
 on:
   workflow_dispatch:
+    inputs:
+      title:
+        description: "Progect"
+        type: string
+        default: "Testing tex title"
+        required: false
+
     
 
 jobs:
