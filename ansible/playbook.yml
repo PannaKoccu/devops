@@ -114,18 +114,18 @@
         path: /opt/monitoring/prometheus
         state: directory
 
+    - name: Copy Prometheus config
+      copy:
+        src: files/prometheus.yml
+        dest: /opt/monitoring/prometheus/prometheus.yml
+        mode: '0644'
+
     - name: Set correct permissions for prometheus.yml
       file:
         path: /opt/monitoring/prometheus.yml
         mode: '0644'
         owner: root
         group: root
-
-    - name: Copy Prometheus config
-      copy:
-        src: files/prometheus.yml
-        dest: /opt/monitoring/prometheus/prometheus.yml
-        mode: '0644'
 
     - name: Copy docker-compose.yml
       template:
