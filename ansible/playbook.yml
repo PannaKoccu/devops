@@ -27,6 +27,11 @@
       apt:
         update_cache: yes
 
+    - name: Create app directory
+      file:
+        path: /opt/monitoring
+        state: directory
+
     - name: Install Docker
       apt:
         name: docker.io
@@ -103,11 +108,6 @@
       apt:
         name: ufw
         state: present
-
-    - name: Create app directory
-      file:
-        path: /opt/monitoring
-        state: directory
 
     - name: Create prometheus config directory
       file:
