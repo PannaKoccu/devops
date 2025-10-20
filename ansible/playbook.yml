@@ -117,7 +117,7 @@
     - name: Copy Prometheus config
       copy:
         src: files/prometheus.yml
-        dest: /opt/monitoring/prometheus/prometheus.yml
+        dest: /opt/monitoring/prometheus.yml
         mode: '0644'
 
     - name: Set correct permissions for prometheus.yml
