@@ -3,7 +3,7 @@ terraform {
     bucket         = "pofiknanvsem"
     key            = "terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "terraform-state-lock"
     encrypt        = true
+    use_lockfile = true
   }
 }
