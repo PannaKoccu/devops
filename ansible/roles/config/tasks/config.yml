@@ -1,0 +1,112 @@
+---
+- name: Install aptitude
+  apt:
+    name: aptitude
+    state: latest
+    update_cache: yes
+
+- name: Create app directory
+  file:
+    path: /opt/monitoring
+    state: directory
+
+- name: Create web directory
+  file:
+    path: /opt/web
+    state: directory
+
+- name: Copy website files
+  copy:
+    src: ../../index.html
+    dest: /opt/web/index.html
+
+- name: Copy Dockerfile
+  copy:
+    src: files/Dockerfile
+    dest: /opt/web/Dockerfile
+
+- name: Create prometheus config directory
+  file:
+    path: /opt/monitoring/prometheus
+    state: directory
+
+- name: Copy Prometheus config
+  copy:
+    src: files/prometheus.yml
+    dest: /opt/monitoring/prometheus/prometheus.yml
+    mode: '0644'
+
+- name: Set correct permissions for prometheus.yml
+  file:
+    path: /opt/monitoring/prometheus/prometheus.yml
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Copy docker-compose.yml
+  template:
+    src: files/docker-compose.yml
+    dest: /opt/monitoring/docker-compose.yml
+
+- name: Install ufw (firewall)
+  apt:
+    name: ufw
+    state: present
+
+
+- name: Allow SSH, HTTP, Grafana
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+    loop:
+        - 22   
+        - 80   
+        - 3000 
+        - 9090
+        - 9115
+
+
+- name: Install required system packages
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
+    update_cache: yes
+
+- name: Download Docker GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /usr/share/keyrings/docker-archive-keyring.gpg
+    mode: '0644'
+
+- name: Update package cache
+  apt:
+    update_cache: yes
+
+
+
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Add ubuntu user to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Ensure Docker is started and enabled
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Install Docker Compose
+  get_url:
+    url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name:
+  shell: ansible-galaxy install -r requirements.yml

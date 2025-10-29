@@ -1,0 +1,25 @@
+- name: build image
+  community.docker.docker_image:
+    name: my-website
+    tag: latest
+    source: build
+      path: /opt/web
+    forse_source: yes
+
+- name: Run container
+  community.docker.docker_container:
+    name: website
+    image: my-website
+    state: started
+    ports:
+      - "80 : 80"
+    pull: false
+
+
+- name: start compose
+  community.docker.docker_compose:
+    project_src: /opt/monitoring
+    state: present
+    forse_source: yes
+
+
