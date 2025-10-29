@@ -13,7 +13,7 @@
     image: my-website
     state: started
     ports:
-      - "80 : 80"
+      - "80:80"
     pull: false
 
 
