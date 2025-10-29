@@ -106,3 +106,9 @@
     url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
     dest: /usr/local/bin/docker-compose
     mode: '0755'
+
+- name: install dockers plagin
+  ansible.builting.apt:
+    name: docker-compose-plugin
+    state: present
+    update_cache: yes
