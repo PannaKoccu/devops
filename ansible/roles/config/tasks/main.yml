@@ -71,6 +71,12 @@
     name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
     update_cache: yes
 
+- name: Установить gnupg (требуется для gpg --dearmor)
+  ansible.builtin.apt:
+    name: gnupg
+    state: present
+    update_cache: yes
+    
 - name: Скачать и сохранить GPG-ключ Docker
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
