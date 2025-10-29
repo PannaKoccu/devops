@@ -3,7 +3,7 @@
     name: my-website
     tag: latest
     source: build
-      path: /opt/web
+    path: /opt/web
     forse_source: yes
 
 - name: Run container
