@@ -58,12 +58,12 @@
     rule: allow
     port: "{{ item }}"
     proto: tcp
-    loop:
-        - 22   
-        - 80   
-        - 3000 
-        - 9090
-        - 9115
+  loop:
+    - 22   
+    - 80   
+    - 3000 
+    - 9090
+    - 9115
 
 
 - name: Install required system packages
