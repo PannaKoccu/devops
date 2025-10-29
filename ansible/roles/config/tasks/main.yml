@@ -74,21 +74,13 @@
 - name: Скачать и сохранить GPG-ключ Docker
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
-    dest: /etc/apt/trusted.gpg.d/docker.gpg
+    dest: /tmp/docker.asc
     mode: '0644'
 
 - name: Преобразовать ASCII-ключ в бинарный формат и сохранить
-  ansible.builtin.shell: |
-    gpg --dearmor /tmp/docker.asc
-    mv /tmp/docker.asc.gpg /etc/apt/trusted.gpg.d/docker.gpg
+  ansible.builtin.command: gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg /tmp/docker.asc
   args:
     creates: /etc/apt/trusted.gpg.d/docker.gpg
-
-- name: Update package cache
-  apt:
-    update_cache: yes
-
-
 
 - name: Install Docker
   apt:
