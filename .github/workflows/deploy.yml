@@ -57,8 +57,11 @@ jobs:
           sudo apt update
           sudo apt install -y ansible
       
+      - name: install python packages
+        run: pip install docker
+
       - name: install modul
-        run: ansible-galaxy install -r requirements.yml
+        run: ansible-galaxy install -r ansible/requirements.yml
 
       # Запускаем Ansible
       - name: Run Ansible Playbook
