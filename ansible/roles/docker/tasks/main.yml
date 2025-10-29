@@ -5,7 +5,7 @@
     source: build
     build:
       path: /opt/web
-    forse_source: yes
+    force_source: yes
 
 - name: Run container
   community.docker.docker_container:
