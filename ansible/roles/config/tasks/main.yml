@@ -108,7 +108,7 @@
     mode: '0755'
 
 - name: install dockers plagin
-  ansible.builting.apt:
+  ansible.builtin.apt:
     name: docker-compose-plugin
     state: present
     update_cache: yes
