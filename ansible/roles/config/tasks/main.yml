@@ -71,10 +71,10 @@
     name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
     update_cache: yes
 
-- name: Download Docker GPG key
-  get_url:
+- name: Скачать и сохранить GPG-ключ Docker
+  ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
-    dest: /usr/share/keyrings/docker-archive-keyring.gpg
+    dest: /etc/apt/trusted.gpg.d/docker.gpg
     mode: '0644'
 
 - name: Update package cache
