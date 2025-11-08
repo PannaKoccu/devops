@@ -75,6 +75,9 @@ jobs:
       - name: Fix SSH key permissions
         run: chmod 600 ./ansible-artifacts/ssh-keys/key.pem
 
+      - name: copy path
+        run: copy ./ansible-artifacts/ssh-key/key.pem /home/runner/work/devops/devops/ssh-keys/key.pem
+
       - name: Install Ansible
         run: |
           sudo apt update
