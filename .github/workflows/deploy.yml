@@ -14,12 +14,20 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Create SSH key directory
+        run: mkdir -p ssh-keys
+
+      - name: Set up SSH private key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh-keys/key.pem
+          chmod 600 ssh-keys/key.pem
+
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}  
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID}}   
           TF_VAR_public_key:     ${{ secrets.SSH_PUBLIC_KEY }}
 
       - name: Terraform Apply
@@ -27,7 +35,7 @@ jobs:
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID}} 
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID}}
           TF_VAR_public_key:     ${{ secrets.SSH_PUBLIC_KEY }}
 
       - name: Get EC2 Public IP
@@ -37,17 +45,11 @@ jobs:
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
-
-      - name: Set up SSH private key
-        run: |
-          mkdir -p ${{ runner.temp }}/ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ${{ runner.temp }}/ssh/key.pem
-          chmod 600 ${{ runner.temp }}/ssh/key.pem
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID}}
 
       - name: Generate Ansible Inventory
         run: |
-          echo "${{ env.EC2_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=${{ runner.temp }}/ssh/key.pem" > inventory.ini
+          echo "${{ env.EC2_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=$(pwd)/ssh-keys/key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" > inventory.ini
 
       - name: Upload artifacts for Ansible
         uses: actions/upload-artifact@v4
@@ -55,7 +57,7 @@ jobs:
           name: ansible-artifacts
           path: |
             inventory.ini
-            ${{ runner.temp }}/ssh/key.pem
+            ssh-keys/key.pem
           retention-days: 1
 
   ansible:
@@ -71,9 +73,8 @@ jobs:
           name: ansible-artifacts
           path: ./ansible-artifacts
 
-      - name: Set up SSH key permissions
-        run: |
-          chmod 600 ./ansible-artifacts/${{ runner.temp }}/ssh/key.pem
+      - name: Fix SSH key permissions
+        run: chmod 600 ./ansible-artifacts/ssh-keys/key.pem
 
       - name: Install Ansible
         run: |
