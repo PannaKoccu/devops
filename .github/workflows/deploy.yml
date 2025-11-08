@@ -1,0 +1,90 @@
+name: Deploy with Auto-Generated SSH Key
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  
+          TF_VAR_public_key:     ${{ secrets.SSH_PUBLIC_KEY }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID}} 
+          TF_VAR_public_key:     ${{ secrets.SSH_PUBLIC_KEY }}
+
+      - name: Get EC2 Public IP
+        run: |
+          IP=$(terraform output -raw public_ip)
+          echo "EC2_IP=$IP" >> $GITHUB_ENV
+        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+
+      - name: Set up SSH private key
+        run: |
+          mkdir -p ${{ runner.temp }}/ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ${{ runner.temp }}/ssh/key.pem
+          chmod 600 ${{ runner.temp }}/ssh/key.pem
+
+      - name: Generate Ansible Inventory
+        run: |
+          echo "${{ env.EC2_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=${{ runner.temp }}/ssh/key.pem" > inventory.ini
+
+      - name: Upload artifacts for Ansible
+        uses: actions/upload-artifact@v4
+        with:
+          name: ansible-artifacts
+          path: |
+            inventory.ini
+            ${{ runner.temp }}/ssh/key.pem
+          retention-days: 1
+
+  ansible:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts from deploy job
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-artifacts
+          path: ./ansible-artifacts
+
+      - name: Set up SSH key permissions
+        run: |
+          chmod 600 ./ansible-artifacts/key.pem
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Install Python packages
+        run: pip install docker
+
+      - name: Install Ansible collections
+        run: ansible-galaxy install -r ansible/requirements.yml
+
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i ./ansible-artifacts/inventory.ini ansible/playbook.yml
