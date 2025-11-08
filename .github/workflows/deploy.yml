@@ -76,7 +76,7 @@ jobs:
         run: chmod 600 ./ansible-artifacts/ssh-keys/key.pem
 
       - name: copy path
-        run: cp ./ansible-artifacts/ssh-key/key.pem /home/runner/work/devops/devops/ssh-keys/key.pem
+        run: cp ./ansible-artifacts/ssh-keys/key.pem /home/runner/work/devops/devops/ssh-keys/key.pem
 
       - name: Install Ansible
         run: |
