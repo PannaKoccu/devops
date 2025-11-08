@@ -58,7 +58,6 @@ jobs:
           path: |
             inventory.ini
             ssh-keys/key.pem
-          retention-days: 1
 
   ansible:
     needs: deploy
